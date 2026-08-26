@@ -848,6 +848,7 @@ static int modem_cellular_on_idle_state_enter(struct modem_cellular_data *data)
 	modem_cmux_release(&data->cmux);
 	modem_pipe_close_async(data->uart_pipe);
 	k_sem_give(&data->suspended_sem);
+	modem_cellular_emit_event(data, CELLULAR_EVENT_MODEM_SUSPENDED, NULL);
 	return 0;
 }
 
@@ -2723,6 +2724,7 @@ DEVICE_API(cellular, modem_cellular_api) = {
 int modem_cellular_pm_action(const struct device *dev, enum pm_device_action action)
 {
 	struct modem_cellular_data *data = (struct modem_cellular_data *)dev->data;
+	k_tid_t current_thread = k_current_get();
 	int ret;
 
 	switch (action) {
@@ -2732,6 +2734,17 @@ int modem_cellular_pm_action(const struct device *dev, enum pm_device_action act
 		break;
 
 	case PM_DEVICE_ACTION_SUSPEND:
+		if (current_thread == k_work_queue_thread_get(&k_sys_work_q)) {
+			/* Suspending from the system workqueue cannot work for several reasons:
+			 *   `modem_cellular_delegate_event` handling runs on the workqueue
+			 *   `modem_chat` relies on workqueue for executing any shutdown commands
+			 * Output the error here to make it clear to users what is happening, and
+			 * how to avoid it (don't call `net_if_down` or `conn_mgr_all_if_down` from
+			 * the system workqueue).
+			 */
+			LOG_ERR("Cannot suspend from system workqueue");
+			return -EDEADLK;
+		}
 		modem_cellular_delegate_event(data, MODEM_CELLULAR_EVENT_SUSPEND);
 		ret = k_sem_take(&data->suspended_sem, K_SECONDS(30));
 		break;
