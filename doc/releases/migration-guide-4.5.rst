@@ -540,6 +540,10 @@ Ethernet
   the network stack has joined is received. Disable this option to receive all multicast, as
   before. (:github:`113235`)
 
+* Boards with Ethernet interfaces should now enable :kconfig:option:`CONFIG_ETH_DRIVER` by default,
+  instead of :kconfig:option:`CONFIG_NET_L2_ETHERNET`. The later is now enabled by default when the
+  former is. (:github:`117121`)
+
 Flash
 =====
 * :dtcompatible:`jedec,spi-nand` now requires a ``plane-bytes`` property, which indicates the size
@@ -1730,6 +1734,11 @@ Other subsystems
   ``<zephyr/sys/cpu_load.h>``, and :c:func:`cpu_load_metric_get` is a deprecated wrapper around
   :c:func:`cpu_load_get_cpu`. Note that :c:func:`cpu_load_get_cpu` returns the load in per mille
   (0...1000) rather than percent; use :c:macro:`CPU_LOAD_PERMILLE_TO_PERCENT` to convert.
+
+* The internal ``__ASSERT_ON`` define has been removed. Out-of-tree code should invoke
+  ``__ASSERT()`` or ``__ASSERT_NO_MSG()`` directly, as these macros already compile out when
+  assertions are disabled.
+  Mark values used only by assertions with ``__maybe_unused`` or ``ARG_UNUSED()`` as appropriate.
 
 Logging
 =======
