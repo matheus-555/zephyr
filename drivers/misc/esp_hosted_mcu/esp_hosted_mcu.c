@@ -553,7 +553,8 @@ static void esp_hosted_mcu_event_task(void *p1, void *p2, void *p3)
 		 * the CPU and starve the network and transmit threads.
 		 */
 		for (int i = 0; i < ESP_HOSTED_MCU_RX_BURST; i++) {
-			int len = cfg->transport->transfer(dev, NULL, 0, rx + carry);
+			uint16_t aligned_carry = (carry + 3) & ~3;
+			int len = cfg->transport->transfer(dev, NULL, 0, rx + aligned_carry);
 			uint16_t total;
 			uint16_t done;
 
