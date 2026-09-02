@@ -244,6 +244,18 @@ Boards
   * ``scobc_module1`` → ``scobc_a1``
   * ``xiao_esp32c6`` → ``xiao_esp32c6/esp32c6/hpcore``
 
+* The Nordic nRF52 Kconfig option ``CONFIG_GPIO_AS_PINRESET`` has been removed. Set the
+  ``gpio-as-nreset`` property on the ``&uicr`` devicetree node instead.
+
+* The Nordic Kconfig options ``CONFIG_SOC_DCDC_NRF52X``, ``CONFIG_SOC_DCDC_NRF52X_HV``,
+  ``CONFIG_SOC_DCDC_NRF53X_APP``, ``CONFIG_SOC_DCDC_NRF53X_NET`` and
+  ``CONFIG_SOC_DCDC_NRF53X_HV`` have been removed. Configure the regulators in devicetree
+  instead: ``regulator-initial-mode = <NRF5X_REG_MODE_DCDC>`` on ``&reg1``/``&vregmain``/
+  ``&vregradio``, and ``status = "okay"`` on ``&reg0``/``&vregh``.
+
+* The Nordic nRF53 Kconfig option ``CONFIG_BOARD_ENABLE_CPUNET`` has been removed. Use
+  :kconfig:option:`CONFIG_SOC_NRF53_CPUNET_ENABLE` instead.
+
 Device Drivers and Devicetree
 *****************************
 
@@ -313,6 +325,9 @@ Audio Codec
 Clock Control
 =============
 
+* The Nordic Kconfig option ``CONFIG_NRFS_LOCAL_DOMAIN_DVFS_SCALE_DOWN_AFTER_INIT`` has been
+  removed. Use :kconfig:option:`CONFIG_CLOCK_CONTROL_NRF_HSFLL_LOCAL_REQ_LOW_FREQ` instead.
+
 * The :dtcompatible:`nxp,imxrt11xx-arm-pll` binding now uses ``loop-div`` and
   ``post-div`` for ARM PLL configuration. The legacy ``clock-mult`` and
   ``clock-div`` properties remain supported but are deprecated. Existing
@@ -362,6 +377,18 @@ Devicetree
   value used previously. Code that relied on the old unsigned representation, for example
   unsigned comparisons or ``BUILD_ASSERT(DT_PROP(node, foo) > 0, ...)`` checks, must be updated
   to use signed types or signed-aware checks (:github:`107271`).
+
+* The ``zephyr,memory-region-mpu`` property has been removed. Use ``zephyr,memory-attr``
+  instead. It takes an integer bitmask, not a string:
+
+  .. code-block:: none
+
+     "RAM"         -> <DT_MEM_ARM_MPU_RAM>
+     "RAM_NOCACHE" -> <DT_MEM_ARM_MPU_RAM_NOCACHE>
+     "FLASH"       -> <DT_MEM_ARM_MPU_FLASH>
+     "PPB"         -> <DT_MEM_ARM_MPU_PPB>
+     "IO"          -> <DT_MEM_ARM_MPU_IO>
+     "EXTMEM"      -> <DT_MEM_ARM_MPU_EXTMEM>
 
 Digital Microphone
 ==================
@@ -1030,6 +1057,27 @@ Serial
 SPI
 ===
 
+* The SPI API has been migrated to the inclusive terminology selected by
+  :ref:`coding_guideline_inclusive_language` (controller/peripheral roles, SDO/SDI signal names).
+  The former names are deprecated and will be removed in Zephyr v5.0:
+
+  * :c:macro:`SPI_OP_MODE_CONTROLLER` and :c:macro:`SPI_OP_MODE_PERIPHERAL` replace
+    ``SPI_OP_MODE_MASTER`` and ``SPI_OP_MODE_SLAVE``.
+  * The ``slave`` member of :c:struct:`spi_config` is renamed to ``peripheral``.
+  * :c:macro:`SPI_SDO_OVERRUN_UNKNOWN`, :c:macro:`SPI_SDO_OVERRUN_DT` and
+    :c:macro:`SPI_SDO_OVERRUN_DT_INST` replace the ``SPI_MOSI_OVERRUN_*`` macros.
+  * :kconfig:option:`CONFIG_SPI_PERIPHERAL` replaces ``CONFIG_SPI_SLAVE``.
+  * ``spi_context_is_peripheral()`` replaces ``spi_context_is_slave()`` in the driver-facing
+    ``spi_context.h`` helpers.
+  * The ``sdo-gpios``/``sdi-gpios`` properties of :dtcompatible:`zephyr,spi-bitbang` and
+    :dtcompatible:`raspberrypi,pico-spi-pio`, the ``spi-sdi-gpios``/``spi-sdo-gpios`` properties of
+    :dtcompatible:`brcm,afbr-s50`, the ``peripheral`` property of :dtcompatible:`nxp,s32-spi` and
+    the ``is-peripheral`` property of :dtcompatible:`realtek,bee-spi` replace their former
+    ``mosi``/``miso``/``slave``-based names, which are still accepted but marked as deprecated in
+    the bindings.
+  * The :dtcompatible:`zephyr,bt-hci-spi-peripheral` devicetree compatible replaces
+    ``zephyr,bt-hci-spi-slave``.
+
 * ``SPI_SILABS_SIWX91X_GSPI_DMA`` and ``SPI_SILABS_SIWX91X_GSPI_DMA_MAX_BLOCKS`` have been removed.
   They are replaced by ``SPI_SILABS_SIWX91X_GSPI_DMA_DESCR_COUNT`` which allow to enable DMA and
   configure the descriptor count.
@@ -1444,6 +1492,11 @@ Bluetooth Classic
 
 * Renamed ``CONFIG_BT_DEVICE_VEDNOR_ID`` to :kconfig:option:`CONFIG_BT_DEVICE_VENDOR_ID`
   to fix a typo.
+
+* The :c:member:`bt_rfcomm_dlc_ops.recv` callback signature has changed from
+  ``void`` to ``int``. Existing implementations must be updated to return ``0``
+  to preserve previous synchronous behavior, or ``-EINPROGRESS`` to use the new
+  asynchronous completion path.
 
 Bluetooth HCI
 =============
