@@ -181,6 +181,10 @@ Removed APIs and options
 
     * ``<zephyr/mgmt/hawkbit.h>``
 
+* Devicetree
+
+    * ``zephyr,memory-region-mpu``
+
 * LLEXT
 
     * ``llext_get_fn_table``, replaced by ``llext_get_fn_table_entry``
@@ -229,11 +233,24 @@ Removed APIs and options
     * ``owner-id``, ``perm-read``, ``perm-write``, ``perm-execute``, ``perm-secure`` and
       ``non-secure-callable`` properties of :dtcompatible:`nordic,owned-memory` and
       :dtcompatible:`nordic,owned-partitions`
+    * ``CONFIG_BOARD_ENABLE_CPUNET``, replaced by :kconfig:option:`CONFIG_SOC_NRF53_CPUNET_ENABLE`
+    * ``CONFIG_GPIO_AS_PINRESET``
+    * ``CONFIG_NRFS_LOCAL_DOMAIN_DVFS_SCALE_DOWN_AFTER_INIT``, replaced by
+      :kconfig:option:`CONFIG_CLOCK_CONTROL_NRF_HSFLL_LOCAL_REQ_LOW_FREQ`
+    * ``CONFIG_SOC_DCDC_NRF52X``
+    * ``CONFIG_SOC_DCDC_NRF52X_HV``
+    * ``CONFIG_SOC_DCDC_NRF53X_APP``
+    * ``CONFIG_SOC_DCDC_NRF53X_NET``
+    * ``CONFIG_SOC_DCDC_NRF53X_HV``
 
 * Random
 
     * ``CONFIG_CTR_DRBG_CSPRNG_GENERATOR``
     * ``CONFIG_CS_CTR_DRBG_PERSONALIZATION``
+
+* Shell
+
+    * ``kernel log_level``, replaced by ``log enable``
 
 * SPI
 
@@ -324,6 +341,19 @@ Deprecated APIs and options
   * Deprecated :kconfig:option:`CONFIG_NET_L2_PTP`.
     Used :kconfig:option:`CONFIG_NET_L2_PTP_TIMESTAMPING` instead.
 
+* SPI
+
+  * The SPI API now uses inclusive terminology (controller/peripheral, SDO/SDI). The former
+    names are deprecated: ``SPI_OP_MODE_MASTER``/``SPI_OP_MODE_SLAVE`` (use
+    :c:macro:`SPI_OP_MODE_CONTROLLER`/:c:macro:`SPI_OP_MODE_PERIPHERAL`), the ``slave`` member
+    of :c:struct:`spi_config` (use ``peripheral``), the ``SPI_MOSI_OVERRUN_*`` macros (use
+    :c:macro:`SPI_SDO_OVERRUN_UNKNOWN`, :c:macro:`SPI_SDO_OVERRUN_DT`,
+    :c:macro:`SPI_SDO_OVERRUN_DT_INST`), ``CONFIG_SPI_SLAVE`` (use
+    :kconfig:option:`CONFIG_SPI_PERIPHERAL`), the ``zephyr,bt-hci-spi-slave`` devicetree
+    compatible (use :dtcompatible:`zephyr,bt-hci-spi-peripheral`) and the
+    ``mosi-gpios``/``miso-gpios``-style devicetree properties of the bindings listed in the
+    migration guide.
+
 * Timer
 
   * New :c:func:`sys_clock_no_timeout` hook for handling of
@@ -410,6 +440,10 @@ New APIs and options
     * :c:member:`bt_conn_cb.le_param_update_rejected`
     * ``BT_HCI_QUIRK_NO_FLOW_CONTROL`` HCI device quirk for controllers that
       advertise but reject the controller to host flow control commands.
+    * :c:member:`bt_rfcomm_dlc.rx_credit_limit` to configure per-DLC initial RX credit count.
+    * :c:func:`bt_rfcomm_dlc_recv_complete` to return RX credits to the peer. Applications can
+      return ``-EINPROGRESS`` from the :c:member:`bt_rfcomm_dlc_ops.recv` callback to defer buffer
+      release and flow-control credit refill until processing is complete.
 
   * Mesh
 
@@ -577,6 +611,10 @@ New APIs and options
 * Ring buffer
 
   * :c:struct:`sys_ringq` (see :ref:`fixed_size_ringq_api`)
+
+* USB Type-C
+
+  * :kconfig:option:`CONFIG_USBC_LOG_PD_MSG_NAMES`
 
 * Zbus
 
@@ -859,6 +897,7 @@ New Boards
 * Silicon Laboratories
 
   * :zephyr:board:`kg100s_rb4332a` (``kg100s_rb4332a``)
+  * :zephyr:board:`siwx917_ek2708a` (``siwx917_ek2708a``)
   * :zephyr:board:`xg26_dk2608a` (``xg26_dk2608a``)
   * :zephyr:board:`xg26_rb4121a` (``xg26_rb4121a``)
 

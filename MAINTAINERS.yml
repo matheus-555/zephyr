@@ -6504,6 +6504,8 @@ USB-C:
   maintainers:
     - sambhurst
     - keith-zephyr
+  collaborators:
+    - ncadieux
   files:
     - drivers/usb_c/
     - dts/bindings/usb-c/
@@ -7234,6 +7236,8 @@ West:
     - vaishnavachath
     - ssekar15
     - d-philpot
+  collaborators:
+    - Aman-Lachhiramka-ti
   files: []
   labels:
     - "platform: TI"
