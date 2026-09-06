@@ -23,11 +23,10 @@ on:
       - "modules/openthread/**"
       - "subsys/net/l2/openthread/**"
       - "include/zephyr/net/openthread.h"
+      - "drivers/**nrfx**"
       - "drivers/ieee802154/**"
       - "include/zephyr/net/ieee802154*"
-      - "drivers/serial/*nrfx*"
       - "tests/drivers/uart/**"
-      - "drivers/gpio/*nrfx*"
       - '!**.rst'
 
 permissions:
@@ -106,6 +105,8 @@ jobs:
             scripts/native_simulator/
             tests/bsim/*
             boards/nordic/nrf5*/*dt*
+            drivers/**/*nrfx*
+            drivers/**/*nrfx*/**
             dts/*/nordic/
             modules/mbedtls/**
             modules/hal_nordic/**
@@ -161,6 +162,7 @@ jobs:
           export BSIM_VERSION=$( west list bsim -f {revision} )
           echo "Manifest points to bsim sha $BSIM_VERSION"
           cd /opt/bsim_west/bsim
+          git config --global http.version HTTP/1.1
           git fetch -n origin ${BSIM_VERSION}
           git -c advice.detachedHead=false checkout ${BSIM_VERSION}
           west update

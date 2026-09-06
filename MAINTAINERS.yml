@@ -1258,8 +1258,9 @@ DAP:
 DFU:
   status: maintained
   maintainers:
-    - de-nordic
     - nordicjm
+  collaborators:
+    - de-nordic
   files:
     - include/zephyr/dfu/
     - subsys/dfu/
@@ -1479,6 +1480,8 @@ Documentation:
     - nashif
     - carlescufi
   files:
+    - AGENTS.md
+    - CLAUDE.md
     - CODE_OF_CONDUCT.md
     - CONTRIBUTING.rst
     - doc/glossary.rst
@@ -7659,8 +7662,8 @@ West:
     - libraries.uoscore.oscore_tests
 
 "West project: zcbor":
-  status: maintained
-  maintainers:
+  status: odd fixes
+  collaborators:
     - de-nordic
   files:
     - modules/zcbor/
